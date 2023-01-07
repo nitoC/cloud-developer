@@ -1,4 +1,4 @@
-import express from 'express';
+import express, {Request, Response} from 'express';
 import bodyParser from 'body-parser';
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
 
@@ -33,8 +33,30 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   
   // Root Endpoint
   // Displays a simple message to the user
-  app.get( "/", async ( req, res ) => {
-    res.send("try GET /filteredimage?image_url={{}}")
+  interface reqType extends Request{
+    [key:string]:any
+  }
+  interface resType extends Response{
+    [key:string]:any
+  }
+  app.get( "/", async ( req:reqType, res:resType ) => {
+    res.send(" Hello! try and make a GET /filteredimage?image_url={{}}")
+  } );
+
+  //filter images and sends to view
+  app.get( "/filteredimage", async ( req:reqType, res:resType ) => {
+    
+    const image_url  = req.query.image_url as string ;
+       
+    try{
+      let result:string = await filterImageFromURL(image_url);
+      res.status(200).sendFile(result);
+      res.on('finish',()=> deleteLocalFiles([result]));
+    }catch(err){
+      if(err){
+        return res.status(422).json(err)
+      }
+    }
   } );
   
 
