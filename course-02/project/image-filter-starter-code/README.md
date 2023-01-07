@@ -29,6 +29,6 @@ Follow the process described in the course to `eb init` a new application and `e
 ### Github repository
 https://github.com/nitoC/cloud-developer/
 
-### Custom Domain Name
 
+### Custom Domain Name
 http://image-filter-starter-code-dev222222222222222222.us-east-1.elasticbeanstalk.com
