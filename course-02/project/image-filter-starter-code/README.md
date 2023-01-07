@@ -16,7 +16,7 @@ You'll need to create a new node server. Open a new terminal within the project 
 
 1. Initialize a new project: `npm i`
 2. run the development server with `npm run dev`
-3. visit localhost:/8082 on you browser
+3. visit localhost://8082 on your browser
 
 
 ### Build application
@@ -25,6 +25,9 @@ You'll need to create a new node server. Open a new terminal within the project 
 ### Deploying your system to elastic beanstalk
 
 Follow the process described in the course to `eb init` a new application and `eb create` a new environment to deploy your image-filter service! Don't forget you can use `eb deploy` to push changes.
+
+### Github repository
+https://github.com/nitoC/cloud-developer/
 
 
 ### Custom Domain Name
