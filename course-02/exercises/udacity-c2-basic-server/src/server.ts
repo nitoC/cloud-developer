@@ -81,6 +81,26 @@ import { Car, cars as cars_list } from './cars';
   // it should require id, type, model, and cost
 
   // Start the Server
+  app.get("/cars",(req,res)=>{
+
+    const {make} = req.query;
+
+    if(make){
+      let result = cars.filter((a,b)=>{
+        return a.make===make
+      })
+    return  res.status(200).json(result);
+    }
+   return res.status(200).json(cars);
+  })
+  app.get("/cars/:id",(req,res)=>{
+    let {id} = req.params;
+    let car = cars[parseInt(id)];
+    return res.status(200).json(car);
+  })
+  app.post("/car",(req,res)=>{
+    cars = [...cars, req.body];  
+  })
   app.listen( port, () => {
       console.log( `server running http://localhost:${ port }` );
       console.log( `press CTRL+C to stop server` );
