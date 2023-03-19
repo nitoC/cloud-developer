@@ -12,7 +12,8 @@ const logger = createLogger('auth')
 // TODO: Provide a URL that can be used to download a certificate that can be used
 // to verify JWT token signature.
 // To get this URL you need to go to an Auth0 page -> Show Advanced Settings -> Endpoints -> JSON Web Key Set
-const jwksUrl = '...'
+const jwksUrl = 'https://dev-640mvq7ctp4misd0.us.auth0.com/.well-known/jwks.json'
+
 
 export const handler = async (
   event: CustomAuthorizerEvent
@@ -57,11 +58,35 @@ export const handler = async (
 async function verifyToken(authHeader: string): Promise<JwtPayload> {
   const token = getToken(authHeader)
   const jwt: Jwt = decode(token, { complete: true }) as Jwt
+  let verified;
+    logger.info("authorize", token)
+  try{
+
+    let {data} = await Axios.get(jwksUrl)
+    logger.info('raw cert fetch',data.Keys)
+    let signInItems = data.keys.find(item => item.kid === jwt.header.kid)
+    let keys = signInItems.x5c[0]
+    
+    let cert = `-----BEGIN CERTIFICATE-----\n${keys}\n-----END CERTIFICATE-----`
+    console.log(cert)
+    logger.info('the real cert', cert)
+   verified = await verify(
+      token,           // Token from an HTTP header to validate
+      cert,            // A certificate copied from Auth0 website
+      { algorithms: ['RS256'] } // We need to specify that we use the RS256 algorithm
+  ) as JwtPayload
+  if(verified){
+    return verified
+  }
+  logger.info('verification confirmation', verified)
+  }catch(error){
+    if(error) throw new Error('invalid certificate')
+  }
 
   // TODO: Implement token verification
   // You should implement it similarly to how it was implemented for the exercise for the lesson 5
   // You can read more about how to do this here: https://auth0.com/blog/navigating-rs256-and-jwks/
-  return undefined
+ 
 }
 
 function getToken(authHeader: string): string {

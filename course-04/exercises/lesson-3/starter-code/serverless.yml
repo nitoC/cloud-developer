@@ -1,6 +1,10 @@
-service:
-  name: serverless-udagram-app
+org: nitoc
+app: serverless-udagram-app
+service: serverless-udagram-app
 
+	
+disabledDeprecations:
+  - '*' 
 plugins:
   - serverless-webpack
   - serverless-reqvalidator-plugin
@@ -28,6 +32,7 @@ provider:
     - Effect: Allow
       Action:
         - dynamodb:Query
+        - dynamodb:PutItem
       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.IMAGES_TABLE}
     - Effect: Allow
       Action:
@@ -39,12 +44,16 @@ custom:
     api:
       info:
         version: v1.0.0
+        type: string
         title: Udagram API
         description: Serverless application for images sharing
     models:
       - name: GroupRequest
         contentType: application/json
         schema: ${file(models/create-group-request.json)}
+      - name: ImageRequest
+        contentType: application/json
+        schema: ${file(models/create-image-request.json)}
 
 functions:
 
@@ -55,7 +64,7 @@ functions:
           method: get
           path: groups
           cors: true
-
+          reqValidatorName: RequestBodyValidator
   CreateGroup:
     handler: src/lambda/http/createGroup.handler
     events:
@@ -64,11 +73,6 @@ functions:
           path: groups
           cors: true
           reqValidatorName: RequestBodyValidator
-          documentation:
-            summary: Create a new group
-            description: Create a new group
-            requestModels:
-              'application/json': GroupRequest
 
   GetImages:
     handler: src/lambda/http/getImages.handler
@@ -77,9 +81,15 @@ functions:
           method: get
           path: groups/{groupId}/images
           cors: true
-
+          reqValidatorName: RequestBodyValidator
   CreateImage:
     handler: src/lambda/http/createImage.handler
+    events:
+      - http:
+          method: post
+          path: groups/{groupId}/images
+          cors: true
+          reqValidatorName: RequestBodyValidator
 
 resources:
   Resources:
